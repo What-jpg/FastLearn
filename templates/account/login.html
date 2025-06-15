@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% load tags_filters %}
+
+{% block title %}{% block header %}Log-in{% endblock %}{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {{ form|form_as_p }}
+        <a href="{% url "password_reset" %}">Forgot your password?</a>
+        <p class="form-submit-p"><input type="submit" value="Log-in"></p>
+        <p>Don't have an account? <a href="{% url "register" %}">Register!</a></p>
+        {% csrf_token %}
+    </form>
+{% endblock %}
+
+{% block addition-out %}
+    <a class="social-link" href="{% url "social:begin" "google-oauth2" %}">
+        <p>
+            Sign in with google
+        </p>
+        <img src="{% static "imgs/google.png" %}" />
+    </a>
+{% endblock %}

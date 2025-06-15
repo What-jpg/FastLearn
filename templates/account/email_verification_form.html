@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load tags_filters %}
+
+{% block title %}{% block header %}Verify email for {{ action }}{% endblock %}{% endblock %}
+
+
+{% block content %}
+    <form method="post">
+        {{ form|form_as_p }}
+        <p class="form-submit-p"><input type="submit" value="Verify"></p>
+        <p>Have an account? <a href="{% url "login" %}">Log-in!</a></p>
+        {% csrf_token %}
+    </form>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% load static %}
+{% load tags_filters %}
+
+<!DOCTYPE html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{% static "css/base.css" %}" rel="stylesheet" />
+</head>
+<body>
+    <header>
+        <h1>
+            Fast Learn
+        </h1>
+        <div>
+            <a href="/">
+                Home
+            </a>
+            {% if request.user.is_authenticated %}
+                <a href="{% url "logout" %}">
+                    Logout
+                </a>
+                {% update_user_link %}
+            {% else %}
+                <a href="{% url "login" %}">
+                    Log-in
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% block base_content %}
+    {% endblock %}
+    <div class="error-box">This is an error <div>&#x274c;</div></div>
+    <script>
+        {% block script %}{% endblock %}
+
+        function removeErrorAlert(event) {
+            event.target.parentElement.remove();
+        }
+
+        function addErrorAlert(errorText) {
+            body = document.body;
+
+            el = document.getElementsByClassName("error-box")[0];
+
+            el ? el.remove() : null;
+            
+            body.insertAdjacentHTML('beforeend',
+                `<div class="error-box">${errorText}<div onclick="removeErrorAlert(event)">&#x274c;</div></div>`
+            )
+
+            el = document.getElementsByClassName("error-box")[0];
+
+            setTimeout(() => el.classList.add("error-box-active"), 0)
+
+            setTimeout(() => objDisappear(x => el.style.opacity = x, 0.25, () => el.remove()), 5000)
+        }
+
+        function objAppear(func, totSeconds, callback, currentOpacity = 0, startTime=Date.now()/1000) {
+            currentTime = Date.now()/1000;
+            secsPerFrame = currentTime - startTime;
+            newOpacity = currentOpacity + secsPerFrame/totSeconds;
+            newOpacityBezier = bezierCurve(newOpacity).x;
+            console.log(newOpacityBezier)
+            func(newOpacityBezier);
+
+            if (newOpacityBezier < 1) {
+                requestAnimationFrame(() => objAppear(func, totSeconds, callback, newOpacity, currentTime))
+            } else {
+                func(1);
+                callback();
+            }
+        }
+
+        function objDisappear(func, totSeconds, callback, currentOpacity = 1, startTime=Date.now()/1000) {
+            currentTime = Date.now()/1000;
+            secsPerFrame = currentTime - startTime;
+            newOpacity = currentOpacity - secsPerFrame/totSeconds;
+            newOpacityBezier = bezierCurve(newOpacity).x;
+            func(newOpacityBezier);
+
+            if (newOpacityBezier > 0) {
+                requestAnimationFrame(() => objDisappear(func, totSeconds, callback, newOpacity, currentTime))
+            } else {
+                func(0);
+                callback();
+            }
+        }
+
+        function bezierCurve(t, x0 = 0, y0 = 0, x1 = 0.25, y1 = 0.1, x2 = 0.25, y2 = 1, x3 = 1, y3 = 1) {
+            if (t >= 1) {
+                return {x: 1, y: 1};
+            } else if (t <= 0) {
+                return {x: 0, y: 0};
+            }
+
+            p = {x: 0, y: 0}
+            
+            let x = ((1-t)**3)*x0 + ((1-t)**2)*3*t*x1 + (1-t)*3*t*t*x2 + t*t*t*x3;
+            console.log("x: " + x);
+            console.log("t: " + t)
+
+
+            let y = ((1-t)**3)*y0 + ((1-t)**2)*3*t*y1 + (1-t)*3*t*t*y2 + t*t*t*y3;
+
+            //console.log("y: " + y);
+
+            return {x: x, y: y};
+        }
+    </script>
+</body>

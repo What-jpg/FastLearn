@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}English task{% endblock %}
+
+{% block header %}<div>Task</div><div class="cross-box"><a href="{% url "eng_dashboard" %}">&#x274c;</a></div>{% endblock %}
+
+{% block content %}
+    <form>
+        <p class="form-cancel">
+            <p>{{ question }}</p>
+                {% if options|length > 1 %}
+                    <div class="task-options-container">
+                        {% for option in options %}
+                            <p class="eng-word-opt"><button class="opt-{{ option.1 }}" onclick="displayOpts(event)">{{ option.0 }}</button></p>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="task-options-container-no-grid">
+                        <p class="eng-word-opt"><input class="opt-{{ options.0.1 }}" onkeydown="displayOpts(event)" placeholder="Enter the anwser and press ENTER" /></p>
+                    </div>
+                {% endif %}
+        {% csrf_token %}
+    </form>
+{% endblock %}
+
+{% block script %}
+    {% if options|length > 1 %}
+        function displayOpts(e) {
+            e.preventDefault()
+            correctOpt = document.getElementsByClassName('opt-True')[0]
+            wrongOpts = [...document.getElementsByClassName('opt-False')]
+
+            console.log(wrongOpts)
+
+            objAppear((x) => correctOpt.style.backgroundColor = `rgba(184, 255, 181, ${x})`, 0.25, () => {});
+            correctOpt.style.pointerEvents = 'none';
+
+            wrongOpts.forEach((el, i) => {
+                objAppear((x) => el.style.backgroundColor = `rgba(255, 181, 181, ${x})`, 0.25, () => {});
+                el.style.pointerEvents = 'none';
+            })
+
+            check_url = '{% url "check_eng_word" correct_word %}'
+
+            console.log(check_url)
+            console.log(e.target.className)
+
+            fetch(check_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': "application/json",
+                    'X-CSRFToken': "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ correct: e.target.className == 'opt-True' })
+            }).catch(e => console.log(e))
+
+            setTimeout(() => {
+                window.location.href = '{% url "eng_task" %}'
+            }, 2000)
+        }
+    {% else %}
+        function displayOpts(e) {
+            if (e.keyCode == 13) {
+                e.preventDefault()
+                e.target.blur()
+                e.target.disabled = true
+
+                userAnwser = e.target.value.toLowerCase();
+                correctOpt = "{{ options.0.0 }}"
+
+                console.log(correctOpt)
+
+                //correctOpt.style.backgroundColor = '#bdffc4';
+
+                if (userAnwser == correctOpt) {
+                    objAppear((x) => e.target.style.backgroundColor = `rgba(184, 255, 181, ${x})`, 0.25, () => {});
+                } else {
+                    objAppear((x) => e.target.style.backgroundColor = `rgba(255, 181, 181, ${x})`, 0.25, () => {});
+                }
+
+                e.target.value = `The correct anwser is "${correctOpt}"`
+
+                check_url = '{% url "check_eng_word" correct_word %}'
+
+                console.log(check_url)
+                console.log(e.target.className)
+
+                fetch(check_url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': "application/json",
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ correct: userAnwser == correctOpt })
+                }).catch(e => console.log(e))
+
+                setTimeout(() => {
+                    window.location.href = '{% url "eng_task" %}'
+                }, 2000)
+            }
+        }
+    {% endif %}
+{% endblock %}

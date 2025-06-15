@@ -1,0 +1,285 @@
+{% extends "base_raw.html" %}
+
+{% block base_content %}
+    <div class="main-dashboard-container">
+        <div class="main-dashboard-eng-box">
+            <p>English words</p>
+            <input class="search-input" placeholder="At the end tap ENTER" onkeydown="searchWords(event)" />
+            <button class="add-button" onclick="showAddWord()">Add word</button>
+            <a class="check-knowledge-button" href="{% url "eng_task" %}">Test knowledge</a>
+        </div>
+        <div class="words-eng-container">
+            <table id="words-list" onscroll="loadWordsScroll(event)">
+                <tr class="words-eng-container-head">
+                    <th>Word</th>
+                    <th>Translations</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="add-word-popup">
+        <div>
+            <h1>Add Word</h1>
+            <div id="add-word-first-box">
+                <input id="first-input" placeholder="Fill in the word & press ENTER" onkeydown="addWordFirstPart(event)" />
+                <button onclick="closeAddWord()">Cancel</button>
+            </div>
+            <div id="add-word-second-box">
+                <div class="add-word-second-box-suggestions" id="suggestions-container">
+                </div>
+                <input id="second-input" placeholder="Fill in the translations & press ENTER" onkeydown="addWordSecondPart(event)" />
+                <div class="add-word-second-box-buttons">
+                    <button class="add-word-second-box-cancel-button" onclick="closeAddWord()">Cancel</button>
+                    <button  class="add-word-second-box-suggest-button" onclick="suggestWords()">Suggest</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    let addWordEl = document.getElementById("add-word-popup");
+    let addWordFirst = document.getElementById("add-word-first-box");
+    let addWordSecond = document.getElementById("add-word-second-box");
+    let suggestionsCont = document.getElementById("suggestions-container");
+    let wordsList = document.getElementById("words-list");
+
+    let word = "";
+    let searchStr = "";
+    let translations = [];
+    let suggestionsEarly = [];
+    let currentPage = 1;
+    let csrf = '{{ csrf_token }}';
+
+    addWordEl.style.opacity = 0;
+    addWordEl.style.display = 'none';
+    suggestionsCont.style.display = 'none';
+    addWordSecond.style.display = 'none';
+
+    loadWords();
+
+    function displayTd() {
+        trs = wordsList.querySelectorAll('tr');
+        console.log(trs)
+
+        trs.forEach((el, i) => i % 2 ? el.style.backgroundColor = 'transparent' : el.style.backgroundColor = '#ebedff');
+
+        console.log(trs)
+    }
+
+    function loadWordsScroll(e) {
+        target = e.target
+        if (target.scrollHeight - target.clientHeight - target.scrollTop <= 200) {
+            console.log(target.scrollHeight - target.clientHeight - target.scrollTop);
+            console.log("Fired");
+            loadWords()
+        }
+    }
+
+    async function loadWords() {
+        if (currentPage) {
+            params = new URLSearchParams({
+                symbols: searchStr,
+                page: currentPage
+            })
+    
+            res = await fetch(`{% url "search_eng_word" %}?${params.toString()}`)
+    
+            if (res.ok) {
+                dataObj = (await res.json());
+
+                console.log(dataObj);
+    
+                data = dataObj.data;
+                currentPage = dataObj.has_next ? currentPage + 1 : null
+    
+                data.forEach((e, i) => {
+                    let translationsHTML = "";
+                    e.translations ? e.translations.forEach((el) => translationsHTML += `<span>${el}</span>`) : undefined;
+    
+                    wordsList.innerHTML += `
+                        <tr>
+                            <td>${e.word}</td>
+                            <td>
+                                <div class="cross-box-eng-dashboard" onclick="removeYourself(event, '${e.word}')"><p>&#x274c;</p></div>
+                                <div>
+                                    ${translationsHTML}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                })
+
+                displayTd()
+            } else {
+                res.text().then(err => addErrorAlert(err));
+            }
+        }
+    }
+
+    function searchWords(e) {
+        searchStr = e.target.value;
+
+        console.log('fuck');
+
+        if (e.keyCode == 13) {
+            e.preventDefault();
+
+            wordsList.innerHTML = '<tr class="words-eng-container-head"><th>Word</th><th>Translations</th></tr>';
+
+            currentPage = 1
+
+            loadWords();
+        }
+    }
+
+    async function suggestWords() {
+        console.log(suggestionsEarly)
+        suggestions = []
+
+        if (suggestionsEarly.length != 0) {
+            console.log('wtf')
+            suggestions = suggestionsEarly
+            suggestionsEarly = []
+        } else {
+                console.log(word)
+                params = new URLSearchParams({
+                    "word": word
+                });
+
+                res = await fetch(`{% url "get_eng_trans" %}?${params.toString()}`)
+
+                if (res.ok) {
+                    suggestions = (await res.json()).data
+                } else {
+                    res.text().then(err => addErrorAlert(err))
+                }
+        }
+
+        suggestionsCont.innerHTML = '';
+        translations = []
+        suggestions.forEach(el =>
+            addTranslation(el)
+        )
+    }
+
+    function addWordFirstPart(e) {
+        value = e.target.value;
+        if (e.keyCode == 13 && value != "") {
+            e.preventDefault();
+
+            word = value
+
+            params = new URLSearchParams({
+                "word": value
+            });
+
+            fetch(`{% url "get_eng_trans" %}?${params.toString()}`).then((res) => {
+                if (res.ok) {
+                    res.json().then(data => suggestionsEarly = data.data)
+                    
+                    addWordFirst.style.display = 'none';
+                    addWordSecond.style.removeProperty("display");
+                    document.getElementById('second-input').focus();
+                } else {
+                    res.text().then(err => addErrorAlert(err));
+                }
+            });
+        }   
+    }
+
+    function addTranslation(transl) {
+        suggestionsCont.style.removeProperty('display');
+
+        suggestionsCont.insertAdjacentHTML('beforeend', `
+            <div class="add-word-translation"><p>${transl}</p><div onclick="removeTranslation(event)">&#x274c;</div></div>
+        `
+        )
+
+        translations.push(transl);
+    }
+
+    function addWordSecondPart(e) {
+        value = e.target.value;
+
+        if (e.keyCode == 13) {
+            e.preventDefault();
+
+            if (value) {
+                e.target.value = '';
+                addTranslation(value)
+            } else {
+                const formData = new FormData()
+                formData.append('word', word)
+                console.log(translations)
+                formData.append('translations', JSON.stringify(translations))
+
+                fetch('{% url 'add_eng_word' %}', {
+                    method: 'POST', 
+                    body: formData
+                }).then((res) => {
+                    if (res.ok) {
+                        closeAddWord()
+                    } else {
+                        res.text().then(err => addErrorAlert(err));
+                    }
+                });
+            }
+        }
+    }
+
+    function removeYourself(e, wordDel) {
+        e.target.parentElement.parentElement.parentElement.remove()
+
+        formData = new FormData();
+        formData.append('word', wordDel);
+
+        fetch('{% url "delete_eng_word" %}', {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': csrf
+            },
+            body: formData
+        });
+
+        displayTd()
+    }
+
+    function removeTranslation(e) {
+        parent = e.target.parentElement;
+        val = parent.querySelector('p').value
+
+        translations.splice(translations.indexOf(val), 1)
+        parent.remove()
+
+        if (translations.length == 0) {
+            suggestionsCont.style.display = 'none';
+        }
+    }
+
+    function showAddWord() {
+        console.log('invoked');
+        addWordEl.style.removeProperty("display");
+        document.getElementById('first-input').focus();
+        objAppear((x) => addWordEl.style.opacity = x, 0.25, () => {});
+    }
+
+    function closeAddWord() {
+        function delCallback() {
+            document.getElementById('first-input').value = '';
+            document.getElementById('second-input').value = '';
+            addWordFirst.style.removeProperty("display");
+            word = "";
+            translations = [];
+            suggestionsEarly = [];
+            suggestionsCont.innerHTML = '';
+            suggestionsCont.style.display = 'none';
+            addWordSecond.style.display = 'none';
+            addWordEl.style.display = 'none';
+
+
+        }
+
+        objDisappear((x) => addWordEl.style.opacity = x, 0.25, delCallback)
+    }
+{% endblock %}

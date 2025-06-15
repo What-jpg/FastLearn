@@ -1,0 +1,12 @@
+{% extends "base_raw.html" %}
+{% load static %}
+
+{% block base_content %}
+    <div class="base-container">
+        <div class="base-box">
+            <h1>{% block header %}{% endblock %}</h1>
+            {% block content%}{% endblock %}
+        </div>
+        {% block addition-out %}{% endblock %}
+    </div>
+{% endblock %}

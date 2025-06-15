@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load tags_filters %}
+
+{% block title %}{% block header%}Update account{% endblock %}{% endblock %}
+
+{% block content %}
+    <form method="post">
+        {{ form|form_as_p }}
+        <p class="form-submit-p"><input type="submit" value="Update"></p>
+        <p class="form-cancel-p">
+            <a href="/">
+                Cancel
+            </a>
+        </p>
+        {% csrf_token %}
+    </form>
+{% endblock %}
