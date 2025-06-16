@@ -25,7 +25,7 @@ def register(request):
             email = user_form.cleaned_data['email']
             user_dict = {
                 'username': user_form.cleaned_data['username'],
-                'password': user_form.cleaned_data['password'],
+                'password': make_password(user_form.cleaned_data['password']),
                 'email': email
             }
 
@@ -34,7 +34,7 @@ def register(request):
                 "code": code, "user": user_dict,
                 })
             
-            cache.add(
+            cache.set(
                 UserAuthRedisKeys(user_dict['email']).get_auth_code(EmailVerificationActions.register),
                 json_obj,
                 1200
@@ -56,7 +56,7 @@ def email_verification(request, action, email, code = None):
     def create_user():
         user_model = get_user_model()
 
-        user_form.cleaned_data['user']['password'] = make_password(user_form.cleaned_data['user']['password'])
+        user_form.cleaned_data['user']['password'] = user_form.cleaned_data['user']['password']
 
         return user_model.objects.create(**user_form.cleaned_data['user'])
     
@@ -73,9 +73,6 @@ def email_verification(request, action, email, code = None):
                 user = create_user()
                 
             login(request, user, backend="django.contrib.auth.ModelBackend")
-
-            print(request.user)
-            print(request.user.is_authenticated)
 
             return redirect('/')
     else:
