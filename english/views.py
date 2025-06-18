@@ -227,7 +227,7 @@ def get_translations_check_word(request):
         translations = g4f.ChatCompletion.create(
                     model='gpt-4o',
                     messages=[
-                        {'role': 'user', 'content': 'Create me a translations for word "%s" in format [translation in ukrainian, translation in ukrainan...] if the word does not exist return just return an empty []' % word}
+                        {'role': 'user', 'content': 'Create me a translations for word "%s" in format [translation in ukrainian, translation in ukrainan...] if the word does not exist than just return an empty []' % word}
                     ]
                 )
         

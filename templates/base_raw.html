@@ -30,12 +30,18 @@
 
     {% block base_content %}
     {% endblock %}
+<<<<<<< HEAD
     <div class="error-box">This is an error <div><div>&#x274c;</div></div></div>
+=======
+>>>>>>> 6e7cc5b (Fixed the error message bugs)
     <script>
         {% block script %}{% endblock %}
 
+        let errorTimeoutIdGlobal = null;
+
         function removeErrorAlert(event) {
             event.target.parentElement.remove();
+            clearTimeout(errorTimeoutIdGlobal)
         }
 
         function addErrorAlert(errorText) {
@@ -43,17 +49,25 @@
 
             el = document.getElementsByClassName("error-box")[0];
 
-            el ? el.remove() : null;
+            if (el) {
+                el.remove();
+                clearTimeout(errorTimeoutIdGlobal);
+            }
+
             
             body.insertAdjacentHTML('beforeend',
-                `<div class="error-box">${errorText}<div><div onclick="removeErrorAlert(event)">&#x274c;</div></div></div>`
+                `<div class="error-box">${errorText}<div onclick="removeErrorAlert(event)">&#x274c;</div></div>`
             )
 
             el = document.getElementsByClassName("error-box")[0];
+            div = el.querySelectorAll("div")[0];
+
+            div.style.height = `${el.offsetHeight}px`;
+            div.style.width = `${el.offsetHeight}px`;
 
             setTimeout(() => el.classList.add("error-box-active"), 0)
 
-            setTimeout(() => objDisappear(x => el.style.opacity = x, 0.25, () => el.remove()), 5000)
+            errorTimeoutIdGlobal = setTimeout(() => objDisappear(x => el.style.opacity = x, 0.25, () => el.remove()), 5000)
         }
 
         function objAppear(func, totSeconds, callback, currentOpacity = 0, startTime=Date.now()/1000) {
