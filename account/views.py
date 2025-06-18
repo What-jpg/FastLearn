@@ -40,7 +40,7 @@ def register(request):
                 1200
                 )
             
-            send_auth_code_email.delay(build_abs_uri_main(request), user_dict['email'], code, EmailVerificationActions.register)
+            send_auth_code_email(build_abs_uri_main(request), user_dict['email'], code, EmailVerificationActions.register)
 
             return redirect(reverse('email_verification', args=[EmailVerificationActions.register,  user_dict['email']]))
     else:
@@ -115,7 +115,7 @@ def login_view(request):
                 1200
             )
 
-            send_auth_code_email.delay(build_abs_uri_main(request), user.email, code, EmailVerificationActions.login)
+            send_auth_code_email(build_abs_uri_main(request), user.email, code, EmailVerificationActions.login)
 
             return redirect(reverse('email_verification', args=[EmailVerificationActions.login, user.email]))
 
