@@ -1,4 +1,4 @@
-{% extends "base_raw.html" %}
+ck{% extends "base_raw.html" %}
 
 {% block base_content %}
     <div class="main-dashboard-container">
@@ -174,7 +174,7 @@
                 "word": value
             });
 
-            fetch(`{% url "get_eng_trans" %}?${params.toString()}`).then((res) => {
+            fetch(`{% url "get_eng_trans_check" %}?${params.toString()}`).then((res) => {
                 if (res.ok) {
                     res.json().then(data => suggestionsEarly = data.data)
                     
