@@ -8,5 +8,5 @@ urlpatterns = [
     path('add-word/', views.add_word, name='add_eng_word'),
     path('delete-word/', views.delete_word, name='delete_eng_word'),
     path('search-word/', views.search_word, name='search_eng_word'),
-    path('get-translations/', views.get_translations, name='get_eng_trans'),
+    path('get-translations/', views.get_translations_check_word, name='get_eng_trans_check'),
 ]

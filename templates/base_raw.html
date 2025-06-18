@@ -30,7 +30,7 @@
 
     {% block base_content %}
     {% endblock %}
-    <div class="error-box">This is an error <div>&#x274c;</div></div>
+    <div class="error-box">This is an error <div><div>&#x274c;</div></div></div>
     <script>
         {% block script %}{% endblock %}
 
@@ -46,7 +46,7 @@
             el ? el.remove() : null;
             
             body.insertAdjacentHTML('beforeend',
-                `<div class="error-box">${errorText}<div onclick="removeErrorAlert(event)">&#x274c;</div></div>`
+                `<div class="error-box">${errorText}<div><div onclick="removeErrorAlert(event)">&#x274c;</div></div></div>`
             )
 
             el = document.getElementsByClassName("error-box")[0];

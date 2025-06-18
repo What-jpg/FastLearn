@@ -217,8 +217,12 @@ def search_word(request):
 @csrf_exempt
 @login_required
 @require_GET
-def get_translations(request):
+def get_translations_check_word(request):
     word = request.GET.get('word')
+
+    if EnglishWords.objects.filter(user__id=request.user.id, word=word).exists():
+            return HttpResponseBadRequest('The word has been already added')
+
     if word:
         translations = g4f.ChatCompletion.create(
                     model='gpt-4o',
