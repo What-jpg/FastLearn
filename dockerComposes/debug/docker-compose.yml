@@ -1,0 +1,80 @@
+services:
+  web:
+    image: randomguy676/fast_learn:latest
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    environment:
+      DEBUG: True
+      SECRET_KEY: "django-insecure-u4187x*92k4z30x%rl$!t(w$%%kpxsuk1jfo+%ttq+x8%d$3&4"
+      ALLOWED_HOSTS: "localhost, 127.0.0.1"
+      DB_URL: "postgresql://postgres:1234@db:5432/postgres"
+      REDIS_URL: "redis://cache:6379/0"
+      CELERY_BROKER_URL: "amqp://guest:guest@celery-worker:5672//"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+      celery-worker:
+        condition: service_healthy
+
+  celery-worker:
+    image: rabbitmq:4.1.1-management-alpine
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db:
+    image: postgres
+    restart: always
+    user: 999:999
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: "1234"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    restart: always
+
+  cache:
+    image: redis:8.0.2
+    command: redis-server
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

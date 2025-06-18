@@ -28,7 +28,7 @@ def quiz_task(request):
     def gpt_func():
         additionalText = ''
         if word.translations:
-            additionalText = f', consider the translations that only should be used by you to understand the context you shouldn\'t use them in the question ({', '.join(word.translations)})'
+            additionalText = ', consider the translations that only should be used by you to understand the context you shouldn\'t use them in the question (' + ', '.join(word.translations) + ')'
         match question_type:
             case 0:
                 gpt_response = g4f.ChatCompletion.create(

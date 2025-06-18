@@ -1,0 +1,15 @@
+services:
+  web:
+    image: randomguy676/fast_learn:latest
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    environment:
+      DEBUG: False
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s

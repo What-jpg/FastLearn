@@ -24,6 +24,7 @@ flake8==7.1.2
 frozenlist==1.6.0
 g4f==0.5.3.1
 gunicorn==23.0.0
+honcho==2.0.0
 idna==3.10
 kombu==5.5.3
 MarkupSafe==3.0.2
