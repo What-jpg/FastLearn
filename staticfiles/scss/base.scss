@@ -135,8 +135,13 @@ a {
     transition: top 0.5s ease, transform 0.5s ease;
 
     > div {
-        @include mxns.cross;
-        font-size: 0.5rem;
+        height: 100%;
+        aspect-ratio: 1;
+        
+        > div {
+            @include mxns.cross;
+            font-size: 0.5rem;
+        }
     }
 }
 

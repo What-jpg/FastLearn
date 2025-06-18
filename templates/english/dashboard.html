@@ -147,7 +147,7 @@
                     "word": word
                 });
 
-                res = await fetch(`{% url "get_eng_trans" %}?${params.toString()}`)
+                res = await fetch(`{% url "get_eng_trans_check" %}?${params.toString()}`)
 
                 if (res.ok) {
                     suggestions = (await res.json()).data

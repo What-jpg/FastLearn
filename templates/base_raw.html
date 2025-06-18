@@ -46,7 +46,7 @@
             el ? el.remove() : null;
             
             body.insertAdjacentHTML('beforeend',
-                `<div class="error-box">${errorText}<div onclick="removeErrorAlert(event)">&#x274c;</div></div>`
+                `<div class="error-box">${errorText}<div><div onclick="removeErrorAlert(event)">&#x274c;</div></div></div>`
             )
 
             el = document.getElementsByClassName("error-box")[0];

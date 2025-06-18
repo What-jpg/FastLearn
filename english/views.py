@@ -33,7 +33,7 @@ def quiz_task(request):
             case 0:
                 gpt_response = g4f.ChatCompletion.create(
                     model='gpt-4o',
-                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers, \
+                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers with different word in them, \
                                but the only one correct anwser is this word%s. \
                                Only the correct anwser should fit the question perfectly if possible. \
                                Format this like: the question inside [], \
@@ -43,7 +43,7 @@ def quiz_task(request):
                 gpt_response = g4f.ChatCompletion.create(
                     model='gpt-4o',
                     messages=[{'role': 'user', 'content': 'Give me a task, which is a sentence where there is a place skipped for word "%s" \
-                               where there is several anwsers, \
+                               where there is several anwsers with different word in them, \
                                but the only one correct anwser is this word%s, also you can use different forms of it as the correct answer if you want, \
                                but in this case use only one form of this word. \
                                Only the correct anwser should fit the sentence perfectly if possible. \
@@ -217,8 +217,12 @@ def search_word(request):
 @csrf_exempt
 @login_required
 @require_GET
-def get_translations(request):
+def get_translations_check_word(request):
     word = request.GET.get('word')
+
+    if EnglishWords.objects.filter(user__id=request.user.id, word=word).exists():
+            return HttpResponseBadRequest('The word has been already added')
+
     if word:
         translations = g4f.ChatCompletion.create(
                     model='gpt-4o',
