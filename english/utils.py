@@ -67,19 +67,16 @@ def random_row_geometric(tot_words):
     else:
         return int(n_float) + 1
     
-def choose_eng_word(request, search_opts = ['added', '-added', 'streak', 'last_check', 'newest', 'newest']):
+def choose_eng_word(request, search_opts = ['added', '-added', '-streak', '-last_check', 'newest', 'newest']):
     tot_words = get_total_eng_words(request)
     # if tot_words == 0:
     #     return None
-    last_word_checked = EnglishWords.objects.exclude(added=F('last_check')).order_by('-last_check').first()
+    last_word_checked = EnglishWords.objects.order_by('-last_check').first()
     print(last_word_checked)
     if last_word_checked and tot_words > 1:
         tot_words -= 1
 
     rand_opt = random.randint(0, len(search_opts) - 1)
-    print(tot_words)
-    print("arith: " + str(random_row_arithmetic(tot_words) - 1))
-    print('geom: ' + str(random_row_geometric(tot_words) - 1))
     match search_opts[rand_opt]:
         case 'added':
             if last_word_checked:
@@ -95,22 +92,22 @@ def choose_eng_word(request, search_opts = ['added', '-added', 'streak', 'last_c
             else:
                 word = EnglishWords.objects\
                     .order_by('-added')[random_row_arithmetic(tot_words) - 1]
-        case 'streak':
+        case '-streak':
             if last_word_checked:
                 word = EnglishWords.objects.exclude(id=last_word_checked.id)\
-                    .order_by('streak')[random_row_geometric(tot_words) - 1]
+                    .order_by('-streak')[random_row_geometric(tot_words) - 1]
             else:
                 word = EnglishWords.objects\
-                    .order_by('streak')[random_row_geometric(tot_words) - 1]
-        case 'last_check':
+                    .order_by('-streak')[random_row_geometric(tot_words) - 1]
+        case '-last_check':
             if last_word_checked:
                 word = EnglishWords.objects.exclude(id=last_word_checked.id)\
-                    .order_by('last_check')[random_row_geometric(tot_words) - 1]
+                    .order_by('-last_check')[random_row_geometric(tot_words) - 1]
             else:
                 word = EnglishWords.objects\
-                    .order_by('last_check')[random_row_geometric(tot_words) - 1]
+                    .order_by('-last_check')[random_row_geometric(tot_words) - 1]
         case 'newest':
-            words = EnglishWords.objects.filter(total_invokes__lte=5)
+            words = EnglishWords.objects.filter(total_invokes__lte=5).order_by('-total_invokes')
             if last_word_checked:
                 words.exclude(id=last_word_checked.id)
 
@@ -119,7 +116,7 @@ def choose_eng_word(request, search_opts = ['added', '-added', 'streak', 'last_c
             if words_count == 0:
                 word = choose_eng_word(request, [x for x in search_opts if x != 'newest'])
             else: 
-                word = words[random_row(words_count) - 1]
+                word = words[random_row_arithmetic(words_count) - 1]
 
     return word
 
