@@ -33,40 +33,40 @@ def quiz_task(request):
             case 0:
                 gpt_response = g4f.ChatCompletion.create(
                     model='gpt-4o',
-                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers with different word in them, \
-                               but the only one correct anwser is this word%s. \
-                               Only the correct anwser should fit the question perfectly if possible. \
+                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers with a different word in them, \
+                               but the only one correct anwser is this word, \
+                               it should fit the question perfectly if possible%s. \
                                Format this like: the question inside [], \
                                the correct answer inside {{}}, and the other answers inside {} each' % (word.word, additionalText)}]
                 )
+            # case 1:
+            #     gpt_response = g4f.ChatCompletion.create(
+            #         model='gpt-4o',
+            #         messages=[{'role': 'user', 'content': 'Give me a task, which is a sentence where there is a place skipped for word "%s" \
+            #                    where there is several anwsers with different word in them, \
+            #                    but the only one correct anwser is this word%s, also you can use different forms of it as the correct answer if you want, \
+            #                    but in this case use only one form of this word. \
+            #                    Only the correct anwser should fit the sentence perfectly if possible. \
+            #                    Format this like: the sentence inside [], a place skipped as ___ \
+            #                    the correct answer inside {{}}, and the other answers inside {} each' % (word.word, additionalText)}]
+            #     )
             case 1:
                 gpt_response = g4f.ChatCompletion.create(
                     model='gpt-4o',
-                    messages=[{'role': 'user', 'content': 'Give me a task, which is a sentence where there is a place skipped for word "%s" \
-                               where there is several anwsers with different word in them, \
-                               but the only one correct anwser is this word%s, also you can use different forms of it as the correct answer if you want, \
-                               but in this case use only one form of this word. \
-                               Only the correct anwser should fit the sentence perfectly if possible. \
-                               Format this like: the sentence inside [], a place skipped as ___ \
-                               the correct answer inside {{}}, and the other answers inside {} each' % (word.word, additionalText)}]
-                )
-            case 2:
-                gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-4o',
-                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where I need to type in this word as an anwser%s. \
-                               Only the anwser should fit the question perfectly if possible. \
+                    messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where I need to type in this word as the anwser%s. \
+                               The anwser should fit the question perfectly, if possible. \
                                Format this like: the question inside [], \
-                               the answer inside {{}}' % (word.word, additionalText)}]
+                               the answer inside {{}} without the quotations' % (word.word, additionalText)}]
                 )
-            case 3:
-                gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-4o',
-                    messages=[{'role': 'user', 'content': 'Give me a task, which is a sentence where there is a place skipped for word "%s" where I need to type in this word as an anwser%s, \
-                               also you can use different forms of it in the correct answer if you want, but in this case use only one form of the word. \
-                               Only the anwser should fit the sentence perfectly if possible. \
-                               Format this like: the sentence inside [], a place skipped as ___ \
-                               the answer inside {{}}' % (word.word, additionalText)}]
-                )
+            # case 3:
+            #     gpt_response = g4f.ChatCompletion.create(
+            #         model='gpt-4o',
+            #         messages=[{'role': 'user', 'content': 'Give me a task, which is a sentence where there is a place skipped for word "%s" where I need to type in this word as an anwser%s, \
+            #                    also you can use different forms of it in the correct answer if you want, but in this case use only one form of the word. \
+            #                    Only the anwser should fit the sentence perfectly if possible. \
+            #                    Format this like: the sentence inside [], a place skipped as ___ \
+            #                    the answer inside {{}}' % (word.word, additionalText)}]
+            #     )
 
         question = re.search(r'\[(.*)\]', gpt_response).group(1)
 
