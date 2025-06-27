@@ -84,7 +84,7 @@ def quiz_task(request):
     
     word = choose_eng_word(request)
 
-    question_type = random.randint(0, 3)
+    question_type = random.randint(0, 1)
 
     question, ansrs, correct_ansr = easy_gpt_check(gpt_func)
 
