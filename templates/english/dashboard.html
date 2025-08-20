@@ -1,4 +1,4 @@
-ck{% extends "base_raw.html" %}
+{% extends "base_raw.html" %}
 
 {% block base_content %}
     <div class="main-dashboard-container">
@@ -8,8 +8,8 @@ ck{% extends "base_raw.html" %}
             <button class="add-button" onclick="showAddWord()">Add word</button>
             <a class="check-knowledge-button" href="{% url "eng_task" %}">Test knowledge</a>
         </div>
-        <div class="words-eng-container">
-            <table id="words-list" onscroll="loadWordsScroll(event)">
+        <div class="words-eng-container" onscroll="loadWordsScroll(event)">
+            <table id="words-list">
                 <tr class="words-eng-container-head">
                     <th>Word</th>
                     <th>Translations</th>
@@ -56,7 +56,7 @@ ck{% extends "base_raw.html" %}
     suggestionsCont.style.display = 'none';
     addWordSecond.style.display = 'none';
 
-    loadWords();
+    loadWordsFirst();
 
     function displayTd() {
         trs = wordsList.querySelectorAll('tr');
@@ -67,12 +67,18 @@ ck{% extends "base_raw.html" %}
         console.log(trs)
     }
 
+    async function loadWordsFirst() {
+        target = document.getElementsByClassName("words-eng-container");
+
+        do {
+            await loadWords();
+        } while (currentPage && target.scrollHeight == target.clientHeight);
+    }
+
     function loadWordsScroll(e) {
-        target = e.target
-        if (target.scrollHeight - target.clientHeight - target.scrollTop <= 200) {
-            console.log(target.scrollHeight - target.clientHeight - target.scrollTop);
-            console.log("Fired");
-            loadWords()
+        target = e.target;
+        if (currentPage && target.scrollHeight - target.clientHeight - target.scrollTop <= 200) {
+            loadWords();
         }
     }
 
@@ -91,7 +97,9 @@ ck{% extends "base_raw.html" %}
                 console.log(dataObj);
     
                 data = dataObj.data;
-                currentPage = dataObj.has_next ? currentPage + 1 : null
+                currentPage = dataObj.hasNext ? currentPage + 1 : null
+
+                console.log("Next page: " + currentPage);
     
                 data.forEach((e, i) => {
                     let translationsHTML = "";
