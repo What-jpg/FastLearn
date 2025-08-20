@@ -69,15 +69,16 @@ def random_row_geometric(tot_words):
     
 def choose_eng_word(request, search_opts = ['added', '-added', '-streak', '-last_check', 'newest', 'newest']):
     tot_words = get_total_eng_words(request)
-    # if tot_words == 0:
-    #     return None
+    if tot_words == 0:
+        return None
     last_word_checked = EnglishWords.objects.order_by('-last_check').first()
     print(last_word_checked)
     if last_word_checked and tot_words > 1:
         tot_words -= 1
 
     rand_opt = random.randint(0, len(search_opts) - 1)
-    match search_opts[rand_opt]:
+    rand_search_opt = search_opts[rand_opt]
+    match rand_search_opt:
         case 'added':
             if last_word_checked:
                 word = EnglishWords.objects.exclude(id=last_word_checked.id)\

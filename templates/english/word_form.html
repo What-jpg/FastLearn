@@ -59,6 +59,10 @@
             }, 2000)
         }
     {% else %}
+        target = document.getElementsByClassName("opt-{{ options.0.1 }}")[0];
+
+        target.focus();
+
         function displayOpts(e) {
             if (e.keyCode == 13) {
                 e.preventDefault()

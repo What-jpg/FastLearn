@@ -226,6 +226,7 @@
   background-color: #0066ff !important;
   width: 100%;
   color: #ffffff;
+  z-index: 9999;
 }
 
 body {

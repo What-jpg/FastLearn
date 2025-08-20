@@ -15,12 +15,12 @@ from datetime import datetime
 @login_required
 def index(request):
     user_id = request.user.id
-    words = list(EnglishWords.objects.filter(user__id=user_id))
+    # words = list(EnglishWords.objects.filter(user__id=user_id))
 
     return render(
         request, 
         "english/dashboard.html",
-        {'words': words}
+        # {'words': words}
     )
 
 @login_required
@@ -206,7 +206,7 @@ def search_word(request):
     if not page:
         page = 1
 
-    words = paginator.get_page(1)
+    words = paginator.get_page(page)
 
     print("len " + str(len([{"word": el.word, "translations": el.translations} for el in list(words)])))
 
