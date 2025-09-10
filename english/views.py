@@ -32,7 +32,7 @@ def quiz_task(request):
         match question_type:
             case 0:
                 gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-4o',
+                    model='gpt-3.5-turbo-16k',
                     messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers with a different word in them, \
                                but the only one correct anwser is this word, \
                                it should fit the question perfectly if possible%s. \
@@ -52,7 +52,7 @@ def quiz_task(request):
             #     )
             case 1:
                 gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-4o',
+                    model='gpt-3.5-turbo-16k',
                     messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where I need to type in this word as the anwser%s. \
                                The anwser should fit the question perfectly, if possible. \
                                Format this like: the question inside [], \
@@ -67,6 +67,8 @@ def quiz_task(request):
             #                    Format this like: the sentence inside [], a place skipped as ___ \
             #                    the answer inside {{}}' % (word.word, additionalText)}]
             #     )
+
+        print(gpt_response + "not cool")
 
         question = re.search(r'\[(.*)\]', gpt_response).group(1)
 
@@ -115,11 +117,9 @@ def check_eng_word(request, word):
 
     return HttpResponse('OK')
 
-@csrf_exempt
 @login_required
 @require_POST
 def add_word(request):
-    print(request.body)
     data = request.POST
 
     if request.method == 'POST':
@@ -213,8 +213,7 @@ def search_word(request):
     return JsonResponse({'data': [{"word": el.word, "translations": el.translations} for el in list(words)], 'hasNext': words.has_next()}, status=200)
 
 
-    
-@csrf_exempt
+
 @login_required
 @require_GET
 def get_translations_check_word(request):

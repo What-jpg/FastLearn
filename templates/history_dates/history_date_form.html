@@ -2,7 +2,7 @@
 
 {% block title %}English task{% endblock %}
 
-{% block header %}<div>Task</div><div class="cross-box"><a href="{% url "eng_dashboard" %}">&#x274c;</a></div>{% endblock %}
+{% block header %}<div>Task</div><div class="cross-box"><a href="{% url "hist_dashboard" %}">&#x274c;</a></div>{% endblock %}
 
 {% block content %}
     <form>
@@ -40,22 +40,8 @@
                 el.style.pointerEvents = 'none';
             })
 
-            check_url = '{% url "check_eng_word" correct_word %}'
-
-            console.log(check_url)
-            console.log(e.target.className)
-
-            fetch(check_url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': "application/json",
-                    'X-CSRFToken': "{{ csrf_token }}"
-                },
-                body: JSON.stringify({ correct: e.target.className == 'opt-True' })
-            }).catch(e => console.log(e))
-
             setTimeout(() => {
-                window.location.href = '{% url "eng_task" %}'
+                window.location.href = '{% url "hist_task" %}'
             }, 2000)
         }
     {% else %}
@@ -84,22 +70,8 @@
 
                 e.target.value = `The correct anwser is "${correctOpt}"`
 
-                check_url = '{% url "check_eng_word" correct_word %}'
-
-                console.log(check_url)
-                console.log(e.target.className)
-
-                fetch(check_url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': "application/json",
-                        'X-CSRFToken': "{{ csrf_token }}"
-                    },
-                    body: JSON.stringify({ correct: userAnwser == correctOpt })
-                }).catch(e => console.log(e))
-
                 setTimeout(() => {
-                    window.location.href = '{% url "eng_task" %}'
+                    window.location.href = '{% url "hist_task" %}'
                 }, 2000)
             }
         }
