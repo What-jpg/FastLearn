@@ -60,7 +60,6 @@
   display: grid;
   place-items: center;
   font-size: 0.5rem;
-  z-index: 9999;
 }
 
 #add-word-popup {
@@ -72,6 +71,7 @@
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.25);
+  z-index: 9999;
 }
 #add-word-popup > div {
   background-color: #ffffff;

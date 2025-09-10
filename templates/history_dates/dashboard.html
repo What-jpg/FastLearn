@@ -3,36 +3,39 @@
 {% block base_content %}
     <div class="main-dashboard-container">
         <div class="main-dashboard-eng-box">
-            <p>English words</p>
-            <input class="search-input" placeholder="At the end tap ENTER" onkeydown="searchWords(event)" />
-            <button class="add-button" onclick="showAddWord()">Add word</button>
-            <a class="check-knowledge-button" href="{% url "eng_task" %}">Test knowledge</a>
+            <p>History dates</p>
+            <input class="search-input" placeholder="At the end tap ENTER" onkeydown="searchHistoryDates(event)" />
+            {% if user.is_authenticated and user.is_superuser %}
+                <button class="add-button" onclick="showAddWord()">Add date</button>
+            {% endif %}
+            <a class="check-knowledge-button" href="{% url "hist_task" %}">Test knowledge</a>
         </div>
         <div class="words-eng-container" onscroll="loadWordsScroll(event)">
             <table id="words-list">
                 <tr class="words-eng-container-head">
-                    <th>Word</th>
-                    <th>Translations</th>
+                    <th>Date</th>
+                    <th>Events</th>
                 </tr>
             </table>
         </div>
     </div>
     <div id="add-word-popup">
         <div>
-            <h1>Add Word</h1>
-            <div id="add-word-first-box">
-                <input id="first-input" placeholder="Fill in the word & press ENTER" onkeydown="addWordFirstPart(event)" />
-                <button onclick="closeAddWord()">Cancel</button>
-            </div>
-            <div id="add-word-second-box">
-                <div class="add-word-second-box-suggestions" id="suggestions-container">
+            {% if user.is_authenticated and user.is_superuser %}
+                <h1>Add Date</h1>
+                <div id="add-word-first-box">
+                    <input id="first-input" placeholder="Fill in the date & press ENTER" onkeydown="addWordFirstPart(event)" />
+                    <button onclick="closeAddWord()">Cancel</button>
                 </div>
-                <input id="second-input" placeholder="Fill in the translations & press ENTER" onkeydown="addWordSecondPart(event)" />
-                <div class="add-word-second-box-buttons">
-                    <button class="add-word-second-box-cancel-button" onclick="closeAddWord()">Cancel</button>
-                    <button  class="add-word-second-box-suggest-button" onclick="suggestWords()">Suggest</button>
+                <div id="add-word-second-box">
+                    <div class="add-word-second-box-suggestions" id="suggestions-container">
+                    </div>
+                    <input id="second-input" placeholder="Fill in the events & press ENTER" onkeydown="addWordSecondPart(event)" />
+                    <div class="add-word-second-box-buttons">
+                        <button class="add-word-second-box-cancel-button" onclick="closeAddWord()">Cancel</button>
+                    </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -41,7 +44,7 @@
     let addWordEl = document.getElementById("add-word-popup");
     let addWordFirst = document.getElementById("add-word-first-box");
     let addWordSecond = document.getElementById("add-word-second-box");
-    let suggestionsCont = document.getElementById("suggestions-container");
+    //let suggestionsCont = document.getElementById("suggestions-container");
     let wordsList = document.getElementById("words-list");
 
     let word = "";
@@ -53,8 +56,10 @@
 
     addWordEl.style.opacity = 0;
     addWordEl.style.display = 'none';
-    suggestionsCont.style.display = 'none';
+    //suggestionsCont.style.display = 'none';
+    {% if user.is_authenticated and user.is_superuser %}
     addWordSecond.style.display = 'none';
+    {% endif %}
 
     loadWordsFirst();
 
@@ -89,12 +94,10 @@
                 page: currentPage
             })
     
-            res = await fetch(`{% url "search_eng_word" %}?${params.toString()}`)
+            res = await fetch(`{% url "search_hist_date" %}?${params.toString()}`)
     
             if (res.ok) {
                 dataObj = (await res.json());
-
-                console.log(dataObj);
     
                 data = dataObj.data;
                 currentPage = dataObj.hasNext ? currentPage + 1 : null
@@ -103,13 +106,16 @@
     
                 data.forEach((e, i) => {
                     let translationsHTML = "";
-                    e.translations ? e.translations.forEach((el) => translationsHTML += `<span>${el}</span>`) : undefined;
-    
+                    //e.events.forEach((el) => translationsHTML += `<span>${el}</span>`);
+                    translationsHTML = e.events;
+                    console.log(translationsHTML);
                     wordsList.innerHTML += `
                         <tr>
-                            <td>${e.word}</td>
+                            <td>${e.date}</td>
                             <td>
-                                <div class="cross-box-eng-dashboard" onclick="removeYourself(event, '${e.word}')"><p>&#x274c;</p></div>
+                                {% if user.is_authenticated and user.is_superuser %}
+                                    <div class="cross-box-eng-dashboard" onclick="removeYourself(event, '${e.date}')"><p>&#x274c;</p></div>
+                                {% endif %}
                                 <div>
                                     ${translationsHTML}
                                 </div>
@@ -125,7 +131,7 @@
         }
     }
 
-    function searchWords(e) {
+    function searchHistoryDates(e) {
         searchStr = e.target.value;
 
         console.log('fuck');
@@ -141,36 +147,6 @@
         }
     }
 
-    async function suggestWords() {
-        console.log(suggestionsEarly)
-        suggestions = []
-
-        if (suggestionsEarly.length != 0) {
-            console.log('wtf')
-            suggestions = suggestionsEarly
-            suggestionsEarly = []
-        } else {
-                console.log(word)
-                params = new URLSearchParams({
-                    "word": word
-                });
-
-                res = await fetch(`{% url "get_eng_trans_check" %}?${params.toString()}`)
-
-                if (res.ok) {
-                    suggestions = (await res.json()).data
-                } else {
-                    res.text().then(err => addErrorAlert(err))
-                }
-        }
-
-        suggestionsCont.innerHTML = '';
-        translations = []
-        suggestions.forEach(el =>
-            addTranslation(el)
-        )
-    }
-
     function addWordFirstPart(e) {
         value = e.target.value;
         if (e.keyCode == 13 && value != "") {
@@ -179,20 +155,12 @@
             word = value
 
             params = new URLSearchParams({
-                "word": value
+                "date": value
             });
 
-            fetch(`{% url "get_eng_trans_check" %}?${params.toString()}`).then((res) => {
-                if (res.ok) {
-                    res.json().then(data => suggestionsEarly = data.data)
-                    
-                    addWordFirst.style.display = 'none';
-                    addWordSecond.style.removeProperty("display");
-                    document.getElementById('second-input').focus();
-                } else {
-                    res.text().then(err => addErrorAlert(err));
-                }
-            });
+            addWordFirst.style.display = 'none';
+            addWordSecond.style.removeProperty("display");
+            document.getElementById('second-input').focus();
         }   
     }
 
@@ -216,13 +184,13 @@
             if (value) {
                 e.target.value = '';
                 addTranslation(value)
-            } else {
+            } else if (translations.length != 0) {
                 const formData = new FormData()
-                formData.append('word', word)
+                formData.append('date', word)
                 console.log(translations)
-                formData.append('translations', JSON.stringify(translations))
+                formData.append('events', translations.join('; '))
 
-                fetch('{% url 'add_eng_word' %}', {
+                fetch('{% url 'add_hist_date' %}', {
                     method: 'POST', 
                     headers: {
                         'X-CSRFToken': csrf
@@ -243,9 +211,9 @@
         e.target.parentElement.parentElement.parentElement.remove()
 
         formData = new FormData();
-        formData.append('word', wordDel);
+        formData.append('date', wordDel);
 
-        fetch('{% url "delete_eng_word" %}', {
+        fetch('{% url "delete_hist_date" %}', {
             method: "POST",
             headers: {
                 'X-CSRFToken': csrf

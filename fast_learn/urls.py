@@ -28,4 +28,5 @@ urlpatterns = [
         'social-auth/',
         include('social_django.urls', namespace='social')
     ),
+    path('history-dates/', include('history_dates.urls')),
 ]

@@ -60,6 +60,7 @@
   display: grid;
   place-items: center;
   font-size: 0.5rem;
+  z-index: 9999;
 }
 
 #add-word-popup {

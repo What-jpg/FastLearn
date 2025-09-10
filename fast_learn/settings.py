@@ -35,6 +35,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(', ')
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'english.apps.EnglishConfig',
+    'history_dates.apps.HistoryDatesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
