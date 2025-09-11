@@ -126,8 +126,6 @@ def search_hist_date(request):
 
     dates = paginator.get_page(page)
 
-    print(list(dates)[0].events)
-
     return JsonResponse({'data': [{"date": el.date, "events": el.events} for el in list(dates)], 'hasNext': dates.has_next()}, status=200)
 
 
