@@ -44,7 +44,7 @@
     let addWordEl = document.getElementById("add-word-popup");
     let addWordFirst = document.getElementById("add-word-first-box");
     let addWordSecond = document.getElementById("add-word-second-box");
-    //let suggestionsCont = document.getElementById("suggestions-container");
+    let suggestionsCont = document.getElementById("suggestions-container");
     let wordsList = document.getElementById("words-list");
 
     let word = "";
@@ -56,9 +56,9 @@
 
     addWordEl.style.opacity = 0;
     addWordEl.style.display = 'none';
-    //suggestionsCont.style.display = 'none';
     {% if user.is_authenticated and user.is_superuser %}
-    addWordSecond.style.display = 'none';
+        addWordSecond.style.display = 'none';
+        suggestionsCont.style.display = 'none';
     {% endif %}
 
     loadWordsFirst();
