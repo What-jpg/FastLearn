@@ -12,7 +12,7 @@ from .models import EnglishWords
 import g4f, re, random, json
 from datetime import datetime
 
-gpt_type = 'gpt-4-turbo'
+gpt_type = 'gpt-4'
 
 @login_required
 def index(request):
