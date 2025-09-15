@@ -12,6 +12,8 @@ from .models import EnglishWords
 import g4f, re, random, json
 from datetime import datetime
 
+gpt_type = 'gpt-4-turbo'
+
 @login_required
 def index(request):
     user_id = request.user.id
@@ -32,7 +34,7 @@ def quiz_task(request):
         match question_type:
             case 0:
                 gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-3.5-turbo-16k',
+                    model=gpt_type,
                     messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where there is several anwsers with a different word in them, \
                                but the only one correct anwser is this word, \
                                it should fit the question perfectly if possible%s. \
@@ -52,7 +54,7 @@ def quiz_task(request):
             #     )
             case 1:
                 gpt_response = g4f.ChatCompletion.create(
-                    model='gpt-3.5-turbo-16k',
+                    model=gpt_type,
                     messages=[{'role': 'user', 'content': 'Give me a task for word "%s" where I need to type in this word as the anwser%s. \
                                The anwser should fit the question perfectly, if possible. \
                                Format this like: the question inside [], \
@@ -126,7 +128,7 @@ def add_word(request):
         def gpt_func():
             if usr_trans:
                 translations = g4f.ChatCompletion.create(
-                    model='gpt-4o',
+                    model=gpt_type,
                     messages=[
                         {'role': 'user', 'content': 'Return me the valid translations for word "%s" from list (%s) in format [translation, translation...] if there is no such a values return [], these brackets should be your only response' % (word, ', '.join(usr_trans))}
                     ]
@@ -135,7 +137,7 @@ def add_word(request):
                 return re.search(r'\[(.*)\]', translations).group(1).split(', ')
             else:
                 translations = g4f.ChatCompletion.create(
-                    model='gpt-4o',
+                    model=gpt_type,
                     messages=[
                         {'role': 'user', 'content': 'Return me None if "%s" is a valid word, otherwise return []' % (word)}
                     ]
@@ -224,7 +226,7 @@ def get_translations_check_word(request):
 
     if word:
         translations = g4f.ChatCompletion.create(
-                    model='gpt-4o',
+                    model=gpt_type,
                     messages=[
                         {'role': 'user', 'content': 'Create me a translations for word "%s" in format [translation in ukrainian, translation in ukrainan...] if the word does not exist than just return an empty []' % word}
                     ]
